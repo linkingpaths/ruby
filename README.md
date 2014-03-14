@@ -8,48 +8,37 @@ which in turn was inspired by [Bozhidar Batsov's guide][bbatsov-ruby].
 
 We also maintain a [JavaScript Style Guide][airbnb-javascript].
 
-## <a name='TOC'>Table of Contents</a>
+## Table of Contents
   1.  [Whitespace](#whitespace)
+      1. [Indentation](#indentation)
       1. [Inline](#inline)
-      2. [Indentation](#indentation)
-      3. [Newlines](#newlines)
-  2.  [Line Length](#line-length)
-  3.  [Commenting](#commenting)
-  4.  [Method Definitions](#method-definitions)
-  5.  [Conditional Expressions](#conditional-expressions)
-      1. [Ternary Operator Usage](#ternary-operator-usage)
-  6.  [Syntax](#syntax)
-  7.  [Naming](#naming)
-  8.  [Classes](#classes)
-  9.  [Exceptions](#exceptions)
-  10. [Collections](#collections)
-  11. [Strings](#strings)
-  12. [Regular Expressions](#regular-expressions)
-  13. [Percent Literals](#percent-literals)
-  14. [Be Consistent](#be-consistent)
+      1. [Newlines](#newlines)
+  1.  [Line Length](#line-length)
+  1.  [Commenting](#commenting)
+      1. [File/class-level comments](#fileclass-level-comments)
+      1. [Function comments](#function-comments)
+      1. [Block and inline comments](#block-and-inline-comments)
+      1. [Punctuation, spelling, and grammar](#punctuation-spelling-and-grammar)
+      1. [TODO comments](#todo-comments)
+      1. [Commented-out code](#commented-out-code)
+  1.  [Methods](#methods)
+      1. [Method definitions](#method-definitions)
+      1. [Method calls](#method-calls)
+  1.  [Conditional Expressions](#conditional-expressions)
+      1. [Conditional keywords](#conditional-keywords)
+      1. [Ternary operator](#ternary-operator)
+  1.  [Syntax](#syntax)
+  1.  [Naming](#naming)
+  1.  [Classes](#classes)
+  1.  [Exceptions](#exceptions)
+  1.  [Collections](#collections)
+  1. [Strings](#strings)
+  1. [Regular Expressions](#regular-expressions)
+  1. [Percent Literals](#percent-literals)
+  1. [Rails Specific](#rails)
+  1. [Be Consistent](#be-consistent)
 
 ## Whitespace
-
-### Inline
-
-* Never leave trailing whitespace.
-
-* Use spaces around operators; after commas, colons, and semicolons; and around
-  `{` and before `}`.
-
-    ```Ruby
-    sum = 1 + 2
-    a, b = 1, 2
-    1 > 2 ? true : false; puts 'Hi'
-    [1, 2, 3].each { |e| puts e }
-    ```
-
-* No spaces after `(`, `[` or before `]`, `)`.
-
-    ```Ruby
-    some(arg).other
-    [1, 2, 3].length
-    ```
 
 ### Indentation
 
@@ -79,24 +68,49 @@ We also maintain a [JavaScript Style Guide][airbnb-javascript].
            end
     ```
 
-### Newlines
-
-* Use empty lines between `def`s and to break up a method into logical
-  paragraphs.
+* Align function arguments either all on the same line or one per line.
 
     ```ruby
-    def some_method
-      data = initialize(options)
-
-      data.manipulate!
-
-      data.result
+    # good
+    def self.create_translation(phrase_id,
+                                phrase_key,
+                                target_locale,
+                                value,
+                                user_id,
+                                do_xss_check,
+                                allow_verification)
+      ...
     end
 
-    def some_method
-      result
+    # bad
+    def self.create_translation(phrase_id, phrase_key, target_locale,
+                                value, user_id, do_xss_check, allow_verification)
+      ...
     end
     ```
+
+### Inline
+
+* Never leave trailing whitespace.
+
+* Use spaces around operators; after commas, colons, and semicolons; and around
+  `{` and before `}`.
+
+    ```Ruby
+    sum = 1 + 2
+    a, b = 1, 2
+    1 > 2 ? true : false; puts 'Hi'
+    [1, 2, 3].each { |e| puts e }
+    ```
+
+* No spaces after `(`, `[` or before `]`, `)`.
+
+    ```Ruby
+    some(arg).other
+    [1, 2, 3].length
+    ```
+
+### Newlines
 
 * Add a new line after `if` conditions span multiple lines to help
   differentiate between the conditions and the body.
@@ -111,77 +125,83 @@ We also maintain a [JavaScript Style Guide][airbnb-javascript].
 
 ## Line Length
 
-* Keep lines fewer than 100 characters. Long complex lines of code are hard to
-  quickly understand.
+Keep each line of code to a readable length. Unless you have a reason
+to, keep lines to fewer than 100 characters. Keeping code visually
+grouped together (as a 100-character line limit enforces) makes it
+easier to understand. For example, you don't have to scroll back and
+forth on one line to see what's going on -- you can view it all
+together.
 
-    Here are examples from our codebase showing several techniques for breaking
-    complex statements into multiple lines that are all < 100 characters.
-    Notice techniques like:
+Here are examples from our codebase showing several techniques for
+breaking complex statements into multiple lines that are all < 100
+characters. Notice techniques like:
 
-    * liberal use of linebreaks inside unclosed ( { [
-    * chaining methods, ending unfinished chains with a "."
-    * composing long strings by putting strings next to each other, separated
-      by a backslash-then-newline.
-    * breaking long logical statements with linebreaks after operators like
-      "&&" and "||"
+* liberal use of linebreaks inside unclosed `(` `{` `[`
+* chaining methods, ending unfinished chains with a `.`
+* composing long strings by putting strings next to each other, separated
+  by a backslash-then-newline.
+* breaking long logical statements with linebreaks after operators like
+  `&&` and `||`
 
 
-    ```ruby
-    scope = Translation::Phrase.includes(:phrase_translations).
-      joins(:phrase_screenshots).
-      where(:phrase_screenshots => {
-        :controller => controller_name,
-        :action => JAROMIR_JAGR_SALUTE,
-      })
-    ```
+```ruby
+scope = Translation::Phrase.includes(:phrase_translations).
+  joins(:phrase_screenshots).
+  where(:phrase_screenshots => {
+    :controller => controller_name,
+    :action => JAROMIR_JAGR_SALUTE,
+  })
+```
 
-    ```ruby
-    translation = FactoryGirl.create(
-      :phrase_translation,
-      :locale => :is,
-      :phrase => phrase,
-      :key => 'phone_number_not_revealed_time_zone',
-      :value => 'Símanúmerið þitt verður ekki birt. Það er aðeins hægt að hringja á '\
-                'milli 9:00 og 21:00 %{time_zone}.'
-    )
-    ```
+```ruby
+translation = FactoryGirl.create(
+  :phrase_translation,
+  :locale => :is,
+  :phrase => phrase,
+  :key => 'phone_number_not_revealed_time_zone',
+  :value => 'Símanúmerið þitt verður ekki birt. Það er aðeins hægt að hringja á '\
+            'milli 9:00 og 21:00 %{time_zone}.'
+)
+```
 
-    ```ruby
-    if @reservation_alteration.checkin == @reservation.start_date &&
-       @reservation_alteration.checkout == (@reservation.start_date + @reservation.nights)
+```ruby
+if @reservation_alteration.checkin == @reservation.start_date &&
+   @reservation_alteration.checkout == (@reservation.start_date + @reservation.nights)
 
-      redirect_to_alteration @reservation_alteration
-    end
-    ```
+  redirect_to_alteration @reservation_alteration
+end
+```
 
-    ```ruby
-    <% if @presenter.guest_visa_russia? %>
-      <%= icon_tile_for(I18n.t("email.reservation_confirmed_guest.visa.details_header",
-                               :default => "Visa for foreign Travelers"),
-                        :beveled_big_icon => "stamp" do %>
-        <%= I18n.t("email.reservation_confirmed_guest.visa.russia.details_copy",
-                   :default => "Foreign guests travelling to Russia may need to obtain a visa...") %>
-      <% end %>
-    <% end %>
-    ```
+```erb
+<% if @presenter.guest_visa_russia? %>
+  <%= icon_tile_for(I18n.t("email.reservation_confirmed_guest.visa.details_header",
+                           :default => "Visa for foreign Travelers"),
+                    :beveled_big_icon => "stamp" do %>
+    <%= I18n.t("email.reservation_confirmed_guest.visa.russia.details_copy",
+               :default => "Foreign guests travelling to Russia may need to obtain a visa...") %>
+  <% end %>
+<% end %>
+```
 
-    These code snippets are very much more readable than the alternative:
+These code snippets are very much more readable than the alternative:
 
-    ```ruby
-    scope = Translation::Phrase.includes(:phrase_translations).joins(:phrase_screenshots).where(:phrase_screenshots => { :controller => controller_name, :action => JAROMIR_JAGR_SALUTE })
+```ruby
+scope = Translation::Phrase.includes(:phrase_translations).joins(:phrase_screenshots).where(:phrase_screenshots => { :controller => controller_name, :action => JAROMIR_JAGR_SALUTE })
 
-    translation = FactoryGirl.create(:phrase_translation, :locale => :is, :phrase => phrase, :key => 'phone_number_not_revealed_time_zone', :value => 'Símanúmerið þitt verður ekki birt. Það er aðeins hægt að hringja á milli 9:00 og 21:00 %{time_zone}.')
+translation = FactoryGirl.create(:phrase_translation, :locale => :is, :phrase => phrase, :key => 'phone_number_not_revealed_time_zone', :value => 'Símanúmerið þitt verður ekki birt. Það er aðeins hægt að hringja á milli 9:00 og 21:00 %{time_zone}.')
 
-    if @reservation_alteration.checkin == @reservation.start_date && @reservation_alteration.checkout == (@reservation.start_date + @reservation.nights)
-      redirect_to_alteration @reservation_alteration
-    end
+if @reservation_alteration.checkin == @reservation.start_date && @reservation_alteration.checkout == (@reservation.start_date + @reservation.nights)
+  redirect_to_alteration @reservation_alteration
+end
+```
 
-    <% if @presenter.guest_visa_russia? %>
-      <%= icon_tile_for(I18n.t("email.reservation_confirmed_guest.visa.details_header", :default => "Visa for foreign Travelers"), :beveled_big_icon => "stamp" do %>
-        <%= I18n.t("email.reservation_confirmed_guest.visa.russia.details_copy", :default => "Foreign guests travelling to Russia may need to obtain a visa prior to...") %>
-      <% end %>
-    <% end %>
-    ```
+```erb
+<% if @presenter.guest_visa_russia? %>
+  <%= icon_tile_for(I18n.t("email.reservation_confirmed_guest.visa.details_header", :default => "Visa for foreign Travelers"), :beveled_big_icon => "stamp" do %>
+    <%= I18n.t("email.reservation_confirmed_guest.visa.russia.details_copy", :default => "Foreign guests travelling to Russia may need to obtain a visa prior to...") %>
+  <% end %>
+<% end %>
+```
 
 ## Commenting
 
@@ -222,7 +242,7 @@ module Translation
                                :"en-NZ" => AmericanToKiwi.new,
                              } }
     end
-  
+
   ...
 
   # Applies transforms to American English that are common to
@@ -230,7 +250,7 @@ module Translation
   class AmericanToColonial
     ...
   end
-  
+
   # Converts American to British English.
   # In addition to general Colonial English variations, changes "apartment"
   # to "flat".
@@ -322,7 +342,7 @@ end
 On the other hand, never describe the code. Assume the person reading the code
 knows the language (though not what you're trying to do) better than you do.
 
-### Punctuation, Spelling and Grammar
+### Punctuation, spelling and grammar
 
 Pay attention to punctuation, spelling, and grammar; it is easier to read
 well-written comments than badly written ones.
@@ -343,26 +363,32 @@ punctuation, spelling, and grammar help with that goal.
 Use TODO comments for code that is temporary, a short-term solution, or
 good-enough but not perfect.
 
-TODOs should include the string TODO in all caps, followed by the name, e-mail
-address, or other identifier of the person who can best provide context about
-the problem referenced by the TODO, in parentheses. A colon is optional. A
-comment explaining what there is to do is required. The main purpose is to have
-a consistent TODO format that can be searched to find the person who can
-provide more details upon request. A TODO is not a commitment that the person
-referenced will fix the problem. Thus when you create a TODO, it is almost
-always your name that is given.
+TODOs should include the string TODO in all caps, followed by the full name
+of the person who can best provide context about the problem referenced by the
+TODO, in parentheses. A colon is optional. A comment explaining what there is
+to do is required. The main purpose is to have a consistent TODO format that
+can be searched to find the person who can provide more details upon request.
+A TODO is not a commitment that the person referenced will fix the problem.
+Thus when you create a TODO, it is almost always your name that is given.
 
 ```ruby
-# TODO(JKB) Make this play nicely with country-specific locales.
-# TODO(max): Fix this by mocking Trebuchet.
+  # bad
+  # TODO(RS): Use proper namespacing for this constant.
+
+  # bad
+  # TODO(drumm3rz4lyfe): Use proper namespacing for this constant.
+
+  # good
+  # TODO(Ringo Starr): Use proper namespacing for this constant.
 ```
 
 ### Commented-out code
 
 Never leave commented-out code in our codebase.
 
+## Methods
 
-## Method Definitions
+### Method definitions
 
 * Use `def` with parentheses when there are arguments. Omit the
   parentheses when the method doesn't accept any arguments.
@@ -381,8 +407,8 @@ Never leave commented-out code in our codebase.
 
     ```Ruby
     # bad
-    def obliterate(things, gently = true, except = [], at = Time.now) 
-      # implementation omitted
+    def obliterate(things, gently = true, except = [], at = Time.now)
+      ...
     end
 
     # good
@@ -394,57 +420,119 @@ Never leave commented-out code in our codebase.
       }
       options.reverse_merge!(default_options)
 
-      # implementation omitted
+      ...
     end
     ```
 
-* Use spaces around the `=` operator when assigning default values:
+### Method calls
+
+**Use parentheses** for a method call:
+
+* If the method returns a value.
+
+    ```ruby
+    # bad
+    @current_user = User.find_by_id 1964192
+
+    # good
+    @current_user = User.find_by_id(1964192)
+    ```
+
+* If the first argument to the method uses parentheses.
+
+    ```ruby
+    # bad
+    put! (x + y) % len, value
+
+    # good
+    put!((x + y) % len, value)
+    ```
+
+* Never put a space between a method name and the opening parenthesis.
 
     ```Ruby
     # bad
-    def some_method(options={})
-      # do something...
-    end
+    f (3 + 2) + 1
 
     # good
-    def some_method(options = {})
-      # do something...
-    end
+    f(3 + 2) + 1
     ```
 
-    While several Ruby books suggest the first style, the second is much more
-    prominent in practice (and arguably a bit more readable).
+**Omit parentheses** for a method call:
 
+* If the method accepts no arguments.
+
+    ```ruby
+    # bad
+    nil?()
+
+    # good
+    nil?
+    ```
+
+* If the method doesn't return a value (or we don't care about the return).
+
+    ```ruby
+    # bad
+    render(:partial => 'foo')
+
+    # good
+    render :partial => 'foo'
+    ```
+
+In either case:
+
+* If a method accepts an options hash as the last argument, do not use `{` `}`
+  during invocation.
+
+    ```ruby
+    # bad
+    get '/v1/reservations', { :id => 54875 }
+
+    # good
+    get '/v1/reservations', :id => 54875
+    ```
 
 ## Conditional Expressions
+
+### Conditional keywords
 
 * Never use `then` for multi-line `if/unless`.
 
     ```Ruby
     # bad
     if some_condition then
-      # body omitted
+      ...
     end
 
     # good
     if some_condition
-      # body omitted
+      ...
     end
     ```
 
 * The `and` and `or` keywords are banned. It's just not worth it. Always use `&&` and `||` instead.
 
-* Favor modifier `if/unless` usage when you have a single-line
-  body.
+* Modifier `if/unless` usage is okay when the body is simple, the
+  condition is simple, and the whole thing fits on one line. Otherwise,
+  avoid modifier `if/unless`.
 
     ```Ruby
-    # bad
-    if some_condition
-      do_something
+    # bad - this doesn't fit on one line
+    add_trebuchet_experiments_on_page(request_opts[:trebuchet_experiments_on_page]) if request_opts[:trebuchet_experiments_on_page] && !request_opts[:trebuchet_experiments_on_page].empty?
+
+    # okay
+    if request_opts[:trebuchet_experiments_on_page] &&
+         !request_opts[:trebuchet_experiments_on_page].empty?
+
+      add_trebuchet_experiments_on_page(request_opts[:trebuchet_experiments_on_page])
     end
 
-    # good
-    do_something if some_condition
+    # bad - this is complex and deserves multiple lines and a comment
+    parts[i] = part.to_i(INTEGER_BASE) if !part.nil? && [0, 2, 3].include?(i)
+
+    # okay
+    return if self.reconciled?
     ```
 
 * Never use `unless` with `else`. Rewrite these with the positive case first.
@@ -465,28 +553,42 @@ Never leave commented-out code in our codebase.
     end
     ```
 
+* Avoid `unless` with multiple conditions.
+
+    ```Ruby
+      # bad
+      unless foo? && bar?
+        ...
+      end
+
+      # okay
+      if !(foo? && bar?)
+        ...
+      end
+    ```
+
 * Don't use parentheses around the condition of an `if/unless/while`,
-  unless the condition contains an assignment (see "Using the return
-  value of `=`" below).
+  unless the condition contains an assignment (see [Using the return
+  value of `=`](#syntax) below).
 
     ```Ruby
     # bad
     if (x > 10)
-      # body omitted
+      ...
     end
 
     # good
     if x > 10
-      # body omitted
+      ...
     end
 
     # ok
     if (x = self.next_value)
-      # body omitted
+      ...
     end
     ```
 
-### Ternary Operator Usage
+### Ternary operator
 
 * Avoid the ternary operator (`?:`) except in cases where all expressions are
   extremely trivial. However, do use the ternary operator(`?:`) over
@@ -517,7 +619,6 @@ Never leave commented-out code in our codebase.
     ```
 
 * Avoid multi-line `?:` (the ternary operator), use `if/unless` instead.
-
 
 ## Syntax
 
@@ -567,7 +668,7 @@ Never leave commented-out code in our codebase.
     ```
 
     Some will argue that multiline chaining would look OK with the use of
-    {...}, but they should ask themselves - it this code really readable and
+    `{...}`, but they should ask themselves - it this code really readable and
     can't the blocks contents be extracted into nifty methods.
 
 * Avoid `return` where not required.
@@ -589,13 +690,19 @@ Never leave commented-out code in our codebase.
 
     ```Ruby
     # good - shows intented use of assignment
-    if (v = array.grep(/foo/)) ...
+    if (v = array.grep(/foo/))
+      ...
+    end
 
     # bad
-    if v = array.grep(/foo/) ...
+    if v = array.grep(/foo/)
+      ...
+    end
 
-    # also good - shows intended use of assignment and has correct precedence.
-    if (v = self.next_value) == "hello" ...
+    # also good - shows intended use of assignment and has correct precedence
+    if (v = self.next_value) == "hello"
+      ...
+    end
     ```
 
 * Use `||=` freely to initialize variables.
@@ -621,20 +728,6 @@ Never leave commented-out code in our codebase.
   one-liner scripts is discouraged. Prefer long form versions such as
   `$PROGRAM_NAME`.
 
-* Never put a space between a method name and the opening parenthesis.
-
-    ```Ruby
-    # bad
-    f (3 + 2) + 1
-
-    # good
-    f(3 + 2) + 1
-    ```
-
-* If the first argument to a method begins with an open parenthesis,
-  always use parentheses in the method invocation. For example, write
-`f((3 + 2) + 1)`.
-
 * Use `_` for unused block parameters.
 
     ```Ruby
@@ -643,6 +736,20 @@ Never leave commented-out code in our codebase.
 
     # good
     result = hash.map { |_, v| v + 1 }
+    ```
+
+* When a method block takes only one argument, and the body consists solely of
+  reading an attribute or calling one method with no arguments, use the `&:`
+  shorthand.
+
+    ```ruby
+    # bad
+    bluths.map { |bluth| bluth.occupation }
+    bluths.select { |bluth| bluth.blue_self? }
+
+    # good
+    bluths.map(&:occupation)
+    bluths.select(&:blue_self?)
     ```
 
 ## Naming
@@ -657,13 +764,16 @@ Never leave commented-out code in our codebase.
 * The names of predicate methods (methods that return a boolean value)
   should end in a question mark. (i.e. `Array#empty?`).
 
-* The names of potentially "dangerous" methods (i.e. methods that modify `self` or the
-  arguments, `exit!`, etc.) should end with an exclamation mark. Bang methods
-  should only exist if a non-bang method exists. ([More on this][ruby-naming-bang]).
+* The names of potentially "dangerous" methods (i.e. methods that modify `self`
+  or the arguments, `exit!`, etc.) should end with an exclamation mark. Bang
+  methods should only exist if a non-bang method exists.
+  ([More on this][ruby-naming-bang].)
 
-* Name throwaway variables "_".
+* Name throwaway variables `_`.
     ```Ruby
-    payment, _ = Payment.complete_paypal_payment!(params[:token], native_currency, created_at)
+    payment, _ = Payment.complete_paypal_payment!(params[:token],
+                                                  native_currency,
+                                                  created_at)
     ```
 
 ## Classes
@@ -698,12 +808,12 @@ in inheritance.
     class TestClass
       # bad
       def TestClass.some_method
-        # body omitted
+        ...
       end
 
       # good
       def self.some_other_method
-        # body omitted
+        ...
       end
     ```
 * Avoid `class << self` except when necessary, e.g. single accessors and aliased
@@ -714,11 +824,11 @@ in inheritance.
       # bad
       class << self
         def first_method
-          # body omitted
+          ...
         end
 
         def second_method_etc
-          # body omitted
+          ...
         end
       end
 
@@ -729,11 +839,11 @@ in inheritance.
       end
 
       def self.first_method
-        # body omitted
+        ...
       end
 
       def self.second_method_etc
-        # body omitted
+        ...
       end
     end
     ```
@@ -782,14 +892,14 @@ in inheritance.
     rescue Exception
       # exception handling
     end
-    
+
     # good
     begin
       # an exception occurs here
     rescue StandardError
       # exception handling
     end
-    
+
     # acceptable
     begin
       # an exception occurs here
@@ -819,7 +929,7 @@ in inheritance.
   trailing commas to ensure that parameter changes don't cause
   extraneous diff lines when the logic has not otherwise changed.
 
-    ```
+    ```ruby
     hash = {
       :protocol => 'https',
       :only_path => false,
@@ -841,13 +951,13 @@ in inheritance.
     # good
     email_with_name = "#{user.name} <#{user.email}>"
     ```
-    
+
     Furthermore, keep in mind Ruby 1.9-style interpolation. Let's say you have
     are composing cache keys like this:
 
     ```ruby
     CACHE_KEY = '_store'
-    
+
     cache.write(@user.id + CACHE_KEY)
     ```
 
@@ -875,7 +985,7 @@ in inheritance.
 
 ## Regular Expressions
 
-* Avoid using $1-9 as it can be hard to track what they contain. Named groups
+* Avoid using `$1-9` as it can be hard to track what they contain. Named groups
   can be used instead.
 
     ```Ruby
@@ -891,12 +1001,12 @@ in inheritance.
     ```
 
 * Be careful with `^` and `$` as they match start/end of line, not string
-  endings.  If you want to match the whole string use: `\A` and `\Z`.
+  endings.  If you want to match the whole string use: `\A` and `\z`.
 
     ```Ruby
     string = "some injection\nusername"
     string[/^username$/]   # matches
-    string[/\Ausername\Z/] # don't match
+    string[/\Ausername\z/] # don't match
     ```
 
 * Use `x` modifier for complex regexps. This makes them more readable and you
@@ -924,19 +1034,19 @@ in inheritance.
   and embedded double-quotes. For multi-line strings, prefer heredocs.
 
     ```Ruby
-    # bad (no interpolation needed)
+    # bad - no interpolation needed
     %(<div class="text">Some text</div>)
     # should be '<div class="text">Some text</div>'
 
-    # bad (no double-quotes)
+    # bad - no double-quotes
     %(This is #{quality} style)
     # should be "This is #{quality} style"
 
-    # bad (multiple lines)
+    # bad - multiple lines
     %(<div>\n<span class="big">#{exclamation}</span>\n</div>)
     # should be a heredoc.
 
-    # good (requires interpolation, has quotes, single line)
+    # good - requires interpolation, has quotes, single line
     %(<tr><td class="name">#{name}</td>)
     ```
 
@@ -952,6 +1062,29 @@ in inheritance.
 
     # good
     %r(^/blog/2011/(.*)$)
+    ```
+
+## Rails
+
+* When immediately returning after calling `render` or `redirect_to`, put `return` on the next line,
+  not the same line.
+
+    ```ruby
+    # bad
+    render :text => 'Howdy' and return
+
+    # good
+    render :text => 'Howdy'
+    return
+
+    # still bad
+    render :text => 'Howdy' and return if foo.present?
+
+    # good
+    if foo.present?
+      render :text => 'Howdy'
+      return
+    end
     ```
 
 ## Be Consistent
